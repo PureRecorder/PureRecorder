@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PureRecorder Documentation</title>
+
+<link rel="icon" type="image/svg+xml"
+href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="12" ry="12" fill="red"/></svg>'>
+
+<style>
+:root {
+    --primary: #6c5ce7;
+    --primary-dark: #5849be;
+    --bg-light: #f8f9fc;
+    --text-main: #1a1a1e;
+    --text-muted: #566f91;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: var(--bg-light);
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: .35;
+}
+
+.c1 {
+    width: 500px;
+    height: 500px;
+    background: #ff5c7a;
+    top: -100px;
+    left: -100px;
+}
+
+.c2 {
+    width: 600px;
+    height: 600px;
+    background: var(--primary);
+    bottom: -150px;
+    right: -100px;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 20px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+    color: var(--primary);
+}
+
+.doc-container {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 60px;
+}
+
+.sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+}
+
+.sidebar h3 {
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    color: var(--text-muted);
+}
+
+.sidebar ul {
+    list-style: none;
+    margin-bottom: 28px;
+}
+
+.sidebar li {
+    margin-bottom: 8px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    font-size: .9rem;
+    color: var(--text-main);
+}
+
+.sidebar a:hover {
+    color: var(--primary);
+}
+
+.doc-content {
+    background: var(--bg-light);
+    padding: 60px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: 0 20px 40px rgba(0,0,0,.08);
+}
+
+.doc-content h1 {
+    font-size: 2.4rem;
+    margin-bottom: 20px;
+}
+
+.doc-content h2 {
+    margin-top: 50px;
+    margin-bottom: 15px;
+    font-size: 1.6rem;
+}
+
+.doc-content h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.doc-content p {
+    margin-bottom: 15px;
+    color: var(--text-muted);
+}
+
+.doc-content ul,
+.doc-content ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    color: var(--text-muted);
+}
+
+.doc-content li {
+    margin-bottom: 6px;
+}
+
+.doc-content code {
+    background: #d4d7ff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: .9rem;
+}
+
+.doc-content pre {
+    background: #0f1221;
+    color: #d4d7ff;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-size: .85rem;
+}
+
+.button-row {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0 25px 0;
+    flex-wrap: wrap;
+}
+
+.ext-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+    color: white;
+    display: inline-block;
+}
+
+.ext-btn.firefox {
+    background: #ff7139;
+}
+
+.ext-btn.chrome {
+    background: #1a73e8;
+}
+
+.ext-btn:hover {
+    opacity: .9;
+}
+
+.notice {
+    background: #fff8e6;
+    border: 1px solid #ffd36b;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: .9rem;
+    color: #5a4a00;
+}
+
+.footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: .9rem;
+}
+
+@media (max-width: 900px) {
+    .doc-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: relative;
+        top: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+</div>
+
+<nav>
+    <div class="nav-container">
+        <div class="logo">PureRecorder</div>
+
+        <ul class="nav-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="#">DOCUMENTATION</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="doc-container">
+
+    <aside class="sidebar">
+        <h3>Getting Started</h3>
+        <ul>
+            <li><a href="#quickstart">Quick Start</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#interface">Web Interface</a></li>
+        </ul>
+
+        <h3>Configuration</h3>
+        <ul>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="#cookies">Authentication (Cookies)</a></li>
+        </ul>
+
+        <h3>System</h3>
+        <ul>
+            <li><a href="#logs">Logs</a></li>
+            <li><a href="#log-prefixes">Log Prefix Reference</a></li>
+        </ul>
+    </aside>
+
+    <main class="doc-content">
+
+        <h1>PureRecorder Documentation</h1>
+
+        <p>
+             PureRecorder is a high-efficiency background engine designed for seamless, 24/7 Chaturbate stream archiving. It eliminates the need for manual monitoring, providing a "set-and-forget" environment that captures your favorite content the moment it goes live. Built for stability and precision, the software handles the entire lifecycle of a broadcast—from detection to final storage—without requiring user intervention. 
+        </p>
+
+        <h2 id="quickstart">Quick Start</h2>
+
+        <pre>
+1. Run PureRecorder_Installer.exe
+2. Launch PureRecorder.exe
+3. Open http://localhost:9090/ in your browser
+4. Paste your Chaturbate cookies in Settings
+5. Add performers to begin monitoring
+        </pre>
+
+        <h2 id="installation">Installation</h2>
+
+        <p>
+            PureRecorder is distributed as a Windows installer.
+            Run the installer to install the application.
+        </p>
+
+        <pre>
+PureRecorder_Installer.exe
+        </pre>
+
+        <p>
+            After installation the main executable is:
+        </p>
+
+        <pre>
+PureRecorder.exe
+        </pre>
+
+        <h2 id="interface">Web Interface</h2>
+
+        <p>
+            PureRecorder uses a local web interface instead of a traditional desktop UI.
+        </p>
+
+        <p>
+            Once the program is running, open your browser and navigate to:
+        </p>
+
+        <pre>
+http://localhost:9090/
+        </pre>
+
+        <p>
+            From the interface you can add performers, view active recordings,
+            configure settings and monitor system activity.
+        </p>
+
+        <h2 id="settings">Settings</h2>
+
+        <p>
+            The Settings page allows configuration of recording behaviour,
+            storage directories and authentication cookies.
+        </p>
+
+        <h2 id="cookies">Authentication (Cookies)</h2>
+
+        <p>
+            PureRecorder requires authenticated browser cookies to access stream endpoints.
+            Without valid cookies the recording engine cannot retrieve stream data.
+        </p>
+
+        <h3>1. Install the Cookie Extension</h3>
+
+        <p>
+            Install the extension <code>Get cookies.txt LOCALLY</code> by kairi.
+        </p>
+
+        <div class="button-row">
+            <a class="ext-btn firefox"
+               href="https://addons.mozilla.org/en-US/firefox/addon/get-cookies-txt-locally/"
+               target="_blank" rel="noopener noreferrer">
+                Download for Firefox
+            </a>
+
+            <a class="ext-btn chrome"
+               href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+               target="_blank" rel="noopener noreferrer">
+                Download for Chrome
+            </a>
+        </div>
+
+        <h3>2. Login to Chaturbate</h3>
+
+        <p>
+            Open Chaturbate in your browser and log in normally.
+        </p>
+
+        <h3>3. Copy Cookies</h3>
+
+        <pre>
+1. Click the extension icon
+2. Press "Copy"
+3. Cookies will be copied to your clipboard
+        </pre>
+
+        <h3>4. Paste into PureRecorder</h3>
+
+        <pre>
+1. Open http://localhost:9090/
+2. Go to Settings
+3. Paste cookies into the Cookies field
+4. Save the configuration
+        </pre>
+
+        <div class="notice">
+            Cookies expire periodically. If recordings stop working,
+            repeat the process and update the cookies.
+        </div>
+
+        <h2 id="logs">Logs</h2>
+
+        <p>
+            PureRecorder writes logs to the <code>logs</code> directory inside the application folder.
+            The main system log is <code>logs/system.log</code>. Each performer can also have a dedicated log file.
+        </p>
+
+        <p>
+            Logs use a structured format:
+        </p>
+
+        <pre>
+[date time] [LEVEL] [CODE] message | key=value key=value
+[time] [LEVEL] [CODE] message
+        </pre>
+
+        <h3 id="log-prefixes">Log Prefix Reference</h3>
+
+        <p>
+            The following prefixes are used by the application exactly as written in the source code.
+            They indicate the subsystem that generated each entry.
+        </p>
+
+        <h3>INFO</h3>
+
+        <ul>
+            <li><code>INIT-001</code> — System boot</li>
+            <li><code>INIT-100</code> — System ready</li>
+            <li><code>WORK-001</code> — Worker started</li>
+            <li><code>WORK-010</code> — Stopping paused stream</li>
+            <li><code>REC-010</code> — Live stream detected</li>
+            <li><code>REC-100</code> — --- NEW RECORDING STARTED ---</li>
+            <li><code>REC-101</code> — File: &lt;output filename&gt;</li>
+            <li><code>REC-200</code> — Recording finished.</li>
+            <li><code>USER-001</code> — User action</li>
+            <li><code>CFG-001</code> — Settings updated</li>
+            <li><code>SYS-OFF</code> — Shutdown requested</li>
+            <li><code>SYS-100</code> — Server started</li>
+        </ul>
+
+        <h3>WARN</h3>
+
+        <ul>
+            <li><code>PROC-021</code> — Force killing process</li>
+            <li><code>LIC-002</code> — PRO license expired. Switching to FREE mode.</li>
+            <li><code>ENC-001</code> — FFmpeg missing, cannot start recording</li>
+            <li><code>NET-001</code> — Network check failed</li>
+        </ul>
+
+        <h3>ERROR</h3>
+
+        <ul>
+            <li><code>DB-001</code> — Database connection failed</li>
+            <li><code>DB-002</code> — Failed to create performers table</li>
+            <li><code>DB-003</code> — Failed to create config table</li>
+            <li><code>SYS-001</code> — Internal Template parse failed</li>
+            <li><code>REC-PIPESTALL</code> — yt-dlp stdout stalled</li>
+            <li><code>PROC-002</code> — Failed to start ffmpeg process</li>
+            <li><code>PROC-002</code> — Failed to start yt-dlp process</li>
+            <li><code>PROC-000</code> — Command not initialized</li>
+            <li><code>PROC-011</code> — Process execution error</li>
+            <li><code>REC-STALL</code> — Recording stalled detected</li>
+            <li><code>USER-002</code> — Failed to add performer</li>
+            <li><code>TPL-001</code> — Template execution failed</li>
+            <li><code>CFG-002</code> — Failed to write cookie file</li>
+            <li><code>PANIC-001</code> — Recovered panic</li>
+            <li><code>PANIC-002</code> — Fatal panic</li>
+        </ul>
+
+        <h3>DEBUG</h3>
+
+        <p>
+            Debug logs are only written when Debug Mode is enabled in Settings.
+        </p>
+
+        <ul>
+            <li><code>PROC-020</code> — Cancel signal sent</li>
+            <li><code>PROC-001</code> — Starting piped process</li>
+            <li><code>PROC-003</code> — Process started</li>
+            <li><code>PROC-010</code> — Process exited</li>
+            <li><code>ENG-STDERR</code> — stderr output captured from yt-dlp</li>
+            <li><code>ENG-VAL-START</code> — Validating stream</li>
+            <li><code>ENG-VAL-FAIL</code> — Invalid engine path</li>
+            <li><code>ENG-VAL-FAIL</code> — Validation execution failed</li>
+            <li><code>ENG-VAL-PARSE</code> — JSON parse failed</li>
+            <li><code>ENG-VAL-RESULT</code> — Validation result</li>
+        </ul>
+
+        <h3>STATS</h3>
+
+        <p>
+            Telemetry entries are written with the <code>[STATS]</code> tag and are used for live recording progress.
+        </p>
+
+        <ul>
+            <li>Uptime</li>
+            <li>File size</li>
+            <li>Bitrate</li>
+        </ul>
+
+        <p>
+            Per-performer logs are stored at:
+        </p>
+
+        <pre>
+logs/&lt;performer_name&gt;.log
+        </pre>
+
+        <p>
+            These logs are rotated automatically when they reach the size limit, and the previous file is moved to
+            <code>.old</code>.
+        </p>
+
+    </main>
+
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 PureRecorder</p>
+</footer>
+
+</body>
+</html>

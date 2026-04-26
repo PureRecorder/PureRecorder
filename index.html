@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml"
+        href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="12" ry="12" fill="red"/></svg>'>
+<title>PureRecorder</title>
+
+<style>
+:root {
+    --primary: #6c5ce7;
+    --primary-dark: #5849be;
+    --accent: #00d2d3;
+    --bg-light: #f8f9fc;
+    --text-main: #1a1a1e;
+    --text-muted: #566f91;
+    --glass: rgba(255, 255, 255, 0.8);
+    --card-width: 300px;
+    --card-height: 500px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: var(--bg-light);
+    color: var(--text-main);
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+.bg { position: fixed; inset: 0; z-index: -1; }
+.circle { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.4; }
+.c1 { width: 500px; height: 500px; background: #ff5c7a; top: -100px; left: -100px; }
+.c2 { width: 600px; height: 600px; background: var(--primary); bottom: -150px; right: -100px; }
+
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: transparent;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 20px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+    color: var(--primary);
+}
+
+.hero {
+    max-width: 1400px;
+    margin: 40px auto 0;
+    padding: 120px 20px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.hero-left {
+    flex: 0.9;
+}
+
+.hero-left h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.hero-left p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 24px;
+    max-width: 520px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.hero-btn {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.hero-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.hero-btn.primary:hover {
+    background: var(--primary-dark);
+}
+
+.hero-right {
+    flex: 1.8;
+    display: flex;
+    justify-content: center;
+}
+
+.image-hero {
+    width: 100%;
+    max-width: 1200px;
+    box-shadow: 0 35px 80px rgba(0,0,0,0.18);
+    position: relative;
+    cursor: pointer;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.image-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    border-radius: 14px;
+    transition: transform 0.4s ease;
+}
+
+.hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hover-overlay svg {
+    width: 56px;
+    height: 56px;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: scale(0.8);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.image-hero:hover .hover-overlay {
+    opacity: 1;
+}
+
+.image-hero:hover .hover-overlay svg {
+    transform: scale(1);
+}
+
+.image-hero:hover img {
+    transform: scale(1.02);
+}
+
+.image-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease;
+    z-index: 5000;
+    cursor: pointer;
+}
+
+.image-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-lightbox img {
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    cursor: default;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    font-size: 72px;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+section {
+    padding: 80px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.section-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.about-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px 25px;
+    border: 1px solid rgba(0,0,0,0.03);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(108, 92, 231, 0.08);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.feature-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--primary);
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.feature-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.feature-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.pricing-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 120px;
+    position: relative;
+}
+
+.card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.05);
+    padding: 30px 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.free-side { width: var(--card-width); }
+.free-card {
+    height: var(--card-height);
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+}
+
+.pro-side {
+    position: relative;
+    width: 650px;
+    height: 550px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pro-stack {
+    position: relative;
+    width: var(--card-width);
+    height: var(--card-height);
+}
+
+.pro-card {
+    position: absolute;
+    width: var(--card-width);
+    height: var(--card-height);
+    cursor: pointer;
+}
+
+.pro-card[data-state="active"] { transform: scale(1); z-index: 10; opacity: 1; border: 2px solid var(--primary); box-shadow: 0 35px 60px rgba(108, 92, 231, 0.3); }
+.pro-card[data-state="left"] { transform: translateX(-160px) scale(0.9); opacity: 0.8; z-index: 5; }
+.pro-card[data-state="right"] { transform: translateX(160px) scale(0.9); opacity: 0.8; z-index: 5; }
+.pro-card[data-state="far-left"] { transform: translateX(-280px) scale(0.8); opacity: 0.4; z-index: 1; }
+.pro-card[data-state="far-right"] { transform: translateX(280px) scale(0.8); opacity: 0.4; z-index: 1; }
+
+.card-label { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 12px; display: block; line-height: 1.3; min-height: 3rem; }
+.price-wrapper { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; min-height: 35px; }
+.price { font-size: 1.6rem; font-weight: 800; color: var(--text-main); }
+.discount-badge { background: #1a1a1e; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.empty-badge-space { height: 22px; }
+.feat-list { list-style: none; margin: 15px 0; flex-grow: 1; }
+.feat-list li { margin-bottom: 12px; font-size: 0.85rem; color: #4b5563; display: flex; align-items: center; }
+.feat-list li::before { content: "✓"; color: var(--primary); font-weight: 800; margin-right: 10px; }
+.btn { width: 100%; padding: 14px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+.btn-outline { border: 2px solid #e2e8f0; color: var(--text-main); }
+.btn-outline:hover { background: #f1f5f9; }
+.license-note { font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 12px; }
+
+.nav-controls {
+    position: absolute;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--primary-dark);
+    cursor: pointer;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    transform-origin: center;
+}
+
+.nav-btn i {
+    color: #fff;
+    transition: none;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+}
+
+.faq-question {
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-main);
+    user-select: none;
+}
+
+.faq-question:hover {
+    background: #fcfcff;
+}
+
+.faq-answer {
+    padding: 0 25px;
+    max-height: 0;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border-top: 0 solid transparent;
+}
+
+.faq-item.active {
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(108, 92, 231, 0.08);
+}
+
+.faq-item.active .faq-answer {
+    padding: 15px 25px 25px;
+    max-height: 200px;
+    border-top: 1px solid rgba(0,0,0,0.03);
+}
+
+.faq-icon {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.faq-icon::before, .faq-icon::after {
+    content: '';
+    position: absolute;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.faq-icon::before { width: 100%; height: 2px; top: 9px; left: 0; }
+.faq-icon::after { width: 2px; height: 100%; top: 0; left: 9px; transition: transform 0.3s ease; }
+
+.faq-item.active .faq-icon { transform: rotate(45deg); }
+
+.footer {
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 1100px) {
+    .nav-container { flex-direction: column; gap: 15px; }
+    .nav-links { flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .hero { flex-direction: column; text-align: center; padding-top: 160px; }
+    .hero-left p { margin-left: auto; margin-right: auto; }
+    .pricing-grid { flex-direction: column; gap: 20px; }
+    .pro-side { width: 100%; height: 520px; }
+    .nav-controls { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+</div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">PureRecorder</div>
+        <ul class="nav-links">
+            <li><a href="#about">ABOUT</a></li>
+            <li><a href="#pricing">PRICING</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="./documentation.html">DOCUMENTATION</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-left">
+        <h1>Stream archiving, perfected.</h1>
+        <p>Set your performers, choose your quality, and let PureRecorder handle the rest. The ultimate "set-and-forget" solution for live stream preservation.</p>
+        <div class="hero-actions">
+            <a href="#" class="hero-btn primary">Download for Free</a>
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="image-hero" id="heroImageContainer">
+            <img src="PureRecorder.webp" alt="PureRecorder preview">
+            <div class="hover-overlay">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="about">
+    <div class="section-header">
+        <h2>About PureRecorder</h2>
+    </div>
+
+    <p class="about-intro">
+        PureRecorder is a high-efficiency background engine designed for seamless, 24/7 Chaturbate stream archiving. It eliminates the need for manual monitoring, providing a "set-and-forget" environment that captures your favorite content the moment it goes live. Built for stability and precision, the software handles the entire lifecycle of a broadcast—from detection to final storage—without requiring user intervention.
+    </p>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h3 class="feature-title">Automated Vigilance</h3>
+            <p class="feature-desc">The core engine polls your target list every 30 seconds, ensuring that recording starts the millisecond a stream is detected.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </div>
+            <h3 class="feature-title">High-Fidelity Preservation</h3>
+            <p class="feature-desc">Full support for resolutions up to 1440p, ensuring your archives maintain the original broadcast quality.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <h3 class="feature-title">Lossless Archiving (PRO)</h3>
+            <p class="feature-desc">Our advanced capture method creates a bit-for-bit copy of the stream data directly to your disk, resulting in zero quality loss.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <h3 class="feature-title">System Integrity</h3>
+            <p class="feature-desc">Integrated health checks monitor your network and database status in real-time, ensuring the software is always primed and ready.</p>
+        </div>
+    </div>
+
+</section>
+<section id="pricing">
+    <div class="section-header">
+        <h2>Plans & Licenses</h2>
+        <p>Start for free or unlock full power with a PRO license.</p>
+    </div>
+
+    <div class="pricing-grid">
+        <div class="free-side">
+            <div class="card free-card">
+                <span class="card-label">PureRecorder Free</span>
+                <div class="price-wrapper">
+                        <div class="price">$0</div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Forever, no costs involved.</p>
+                <ul class="feat-list">
+                    <li>1 Concurrent Performer</li>
+                    <li>Max 720p Resolution</li>
+                    <li>Persistent Watermark</li>
+                    <li>Standard Support</li>
+                </ul>
+                <p class="license-note">No license key is required for this plan.</p>
+            </div>
+        </div>
+
+        <div class="pro-side">
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="prev()">←</button>
+                <button class="nav-btn" onclick="next()">→</button>
+            </div>
+            <div class="pro-stack">
+                <div class="card pro-card">
+                    <span class="card-label">PureRecorder Personal – 1 Month</span>
+                    <div class="price-wrapper">
+                        <div class="price">$3.99</div>
+                        <div class="empty-badge-space"></div>
+                    </div>
+                    <ul class="feat-list">
+                        <li>Unlimited Performers</li>
+                        <li>480p, 720p, 1080p & 1440p Res</li>
+                        <li>No Watermarks</li>
+                        <li>Priority Engine Updates</li>
+                    </ul>
+                    <a href="https://payhip.com/b/L6xpX" class="btn btn-primary" target="_blank">Purchase License on PayHip.com</a>
+                    <p class="license-note">Hardware-linked license.</p>
+                </div>
+
+                <div class="card pro-card">
+                    <span class="card-label">PureRecorder –<br>3 Month License</span>
+                    <div class="price-wrapper">
+                        <div class="price">$9.99</div>
+                        <div class="discount-badge">Save 16%</div>
+                    </div>
+                    <ul class="feat-list">
+                        <li>Unlimited Performers</li>
+                        <li>480p, 720p, 1080p & 1440p Res</li>
+                        <li>No Watermarks</li>
+                        <li>Priority Engine Updates</li>
+                    </ul>
+                    <a href="https://payhip.com/b/nLMvC" class="btn btn-primary" target="_blank">Purchase License on PayHip.com</a>
+                    <p class="license-note">Hardware-linked license.</p>
+                </div>
+
+                <div class="card pro-card">
+                    <span class="card-label">PureRecorder –<br>6 Month License</span>
+                    <div class="price-wrapper">
+                        <div class="price">$17.99</div>
+                        <div class="discount-badge">Save 25%</div>
+                    </div>
+                    <ul class="feat-list">
+                        <li>Unlimited Performers</li>
+                        <li>480p, 720p, 1080p & 1440p Res</li>
+                        <li>No Watermarks</li>
+                        <li>Priority Engine Updates</li>
+                    </ul>
+                    <a href="https://payhip.com/b/TuwD0" class="btn btn-primary" target="_blank">Purchase License on PayHip.com</a>
+                    <p class="license-note">Hardware-linked license.</p>
+                </div>
+
+                <div class="card pro-card">
+                    <span class="card-label">PureRecorder –<br>12 Month License</span>
+                    <div class="price-wrapper">
+                        <div class="price">$29.99</div>
+                        <div class="discount-badge">Save 37%</div>
+                    </div>
+                    <ul class="feat-list">
+                        <li>Unlimited Performers</li>
+                        <li>480p, 720p, 1080p & 1440p Res</li>
+                        <li>No Watermarks</li>
+                        <li>Priority Engine Updates</li>
+                    </ul>
+                    <a href="https://payhip.com/b/L0TmQ" class="btn btn-primary" target="_blank">Purchase License on PayHip.com</a>
+                    <p class="license-note">Hardware-linked license.</p>
+                </div>
+
+                <div class="card pro-card">
+                    <span class="card-label">PureRecorder –<br>24 Month License</span>
+                    <div class="price-wrapper">
+                        <div class="price">$49.99</div>
+                        <div class="discount-badge">Save 48%</div>
+                    </div>
+                    <ul class="feat-list">
+                        <li>Unlimited Performers</li>
+                        <li>480p, 720p, 1080p & 1440p Res</li>
+                        <li>No Watermarks</li>
+                        <li>Priority Engine Updates</li>
+                    </ul>
+                    <a href="https://payhip.com/b/LfbH2" class="btn btn-primary" target="_blank">Purchase License on PayHip.com</a>
+                    <p class="license-note">Hardware-linked license.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq">
+    <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know about PureRecorder and our licensing.</p>
+    </div>
+
+    <div class="faq-container">
+        <div class="faq-item">
+            <div class="faq-question">
+                What is PureRecorder?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                PureRecorder is an automated recording management tool designed to monitor and capture Chaturbate live streams. It handles multiple performers simultaneously, ensuring you never miss a broadcast.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What is the difference between the Free and PRO versions?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                The Free version allows for basic monitoring and recording, while the PRO version unlocks advanced features like higher resolution/FPS settings, priority support, and unlimited performer slots.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Is my data private?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                Yes. PureRecorder runs locally on your machine. Your database, configuration, and recordings are stored in your local directory and are not uploaded to any servers.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Can I use my license on multiple computers?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                Licenses are tied to a single Machine ID to prevent abuse. If you need to migrate your license to a new PC, please contact support.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What happens when my license expires?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                The application will revert to the "Free" version functionality. Your data and performers will remain safe, but PRO features will be locked until renewal.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                The performer is live, but PureRecorder isn't recording. Why?
+                <div class="faq-icon"></div>
+            </div>
+            <div class="faq-answer">
+                This usually indicates that the software is being blocked by the platform's security or age-gate. Cookies are mandatory for the system to function correctly.
+            </div>
+        </div>
+    </div>
+</section>
+<div class="image-lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img src="purerecorder.webp" alt="PureRecorder preview">
+</div>
+<footer class="footer">
+    <p>&copy; 2026 PureRecorder. All rights reserved.</p>
+</footer>
+
+<script>
+let index = 1;
+const total = 5;
+
+function render() {
+    const cards = document.querySelectorAll(".pro-card");
+    cards.forEach((c, i) => {
+        let diff = i - index;
+        if (diff < -2) diff += total;
+        if (diff > 2) diff -= total;
+        let state = "far-left";
+        if (diff === 0) state = "active";
+        else if (diff === -1) state = "left";
+        else if (diff === -2) state = "far-left";
+        else if (diff === 1) state = "right";
+        else if (diff === 2) state = "far-right";
+        c.setAttribute("data-state", state);
+    });
+}
+
+function next() { index = (index + 1) % total; render(); }
+function prev() { index = (index - 1 + total) % total; render(); }
+
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(otherItem => {
+            otherItem.classList.remove('active');
+        });
+        if (!isActive) {
+            item.classList.add('active');
+        }
+    });
+});
+
+render();
+
+const heroImageContainer = document.getElementById("heroImageContainer");
+const lightbox = document.getElementById("lightbox");
+
+heroImageContainer.addEventListener("click", () => {
+    lightbox.classList.add("active");
+});
+
+lightbox.addEventListener("click", () => {
+    lightbox.classList.remove("active");
+});
+</script>
+
+</body>
+</html>
